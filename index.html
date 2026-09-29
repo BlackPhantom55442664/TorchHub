@@ -179,7 +179,7 @@ footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--smoke);f
   var bits = [];
   if (cfg.VERSION) bits.push('Phiên bản <b>' + cfg.VERSION + '</b>');
   if (cfg.PLATFORM_TEXT) bits.push('<b>' + cfg.PLATFORM_TEXT + '</b>');
-  if (cfg.FILE_SIZE_TEXT) bits.push('Dung lượng <b>' + cfg.FILE_SIZE_TEXT + '</b>');
+  //if (cfg.FILE_SIZE_TEXT) bits.push('Dung lượng <b>' + cfg.FILE_SIZE_TEXT + '</b>');
   $('#meta').innerHTML = url ? bits.join(' &nbsp;·&nbsp; ') : 'Bản tải về sẽ có sớm.';
 
   if (cfg.CONTACT_EMAIL) {
