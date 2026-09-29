@@ -21,7 +21,7 @@
 window.TORCHFIND_CONFIG = {
 
   // ---------- FILE TẢI VỀ (quan trọng nhất) ----------
-  DOWNLOAD_URL: "downloads/TorchFind.zip",   // <-- đổi đường dẫn file ở đây
+  DOWNLOAD_URL: "https://github.com/BlackPhantom55442664/TorchHub/releases/download/v1.0.0/TorchFind.zip",   // <-- đổi đường dẫn file ở đây
   DOWNLOAD_FILENAME: "TorchFind.zip",        // tên file khi lưu về máy người dùng
 
   // ---------- Thông tin hiển thị dưới nút tải ----------
