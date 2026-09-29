@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TorchFind — Tìm file theo ý nghĩa</title>
+<meta name="description" content="TorchFind giúp bạn tìm file theo tên hoặc theo nội dung bên trong, kể cả khi bạn không nhớ chính xác từ khoá. Không di chuyển hay đổi tên file nào.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🔥%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --soot:#16120F; --charcoal:#1E1915; --raised:#262019; --line:#3A2E24;
+  --ash:#EDE2D4; --smoke:#B3A08B; --flame:#FF6B18; --gold:#FFB020; --core:#FFD98A; --on-flame:#1A1208;
+  --font:"Be Vietnam Pro","Segoe UI",system-ui,-apple-system,"Helvetica Neue",Arial,sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--soot);color:var(--ash);font-family:var(--font);font-size:20px;line-height:1.65;
+  background-image:radial-gradient(900px 500px at 50% -80px,rgba(255,107,24,.18),transparent 70%);background-repeat:no-repeat}
+a{color:var(--gold)}
+.wrap{max-width:1040px;margin:0 auto;padding:0 24px}
+.nav{display:flex;align-items:center;justify-content:space-between;padding:22px 0}
+.brand{display:flex;align-items:center;gap:12px;font-weight:800;font-size:26px;letter-spacing:-.3px}
+.brand svg{width:30px;height:38px}
+.nav a.link{color:var(--smoke);text-decoration:none;font-weight:500;font-size:18px}
+.nav a.link:hover{color:var(--gold)}
+
+.hero{text-align:center;padding:64px 0 40px}
+.tag{display:inline-block;padding:6px 16px;border:1px solid var(--line);border-radius:99px;color:var(--gold);font-size:16px;font-weight:500;background:var(--charcoal)}
+h1{font-size:clamp(38px,6.4vw,66px);line-height:1.12;margin:22px 0 20px;font-weight:800;letter-spacing:-1px}
+h1 em{font-style:normal;background:linear-gradient(90deg,var(--flame),var(--gold),var(--core));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lead{max-width:680px;margin:0 auto 38px;color:var(--smoke);font-size:clamp(20px,2.4vw,24px)}
+
+.btn{display:inline-flex;align-items:center;gap:14px;padding:20px 40px;border-radius:14px;border:0;cursor:pointer;
+  background:var(--flame);color:var(--on-flame);font:800 24px var(--font);text-decoration:none;
+  box-shadow:0 10px 40px rgba(255,107,24,.35);transition:transform .15s,background .15s}
+.btn:hover{background:var(--gold);transform:translateY(-2px)}
+.btn:focus-visible{outline:3px solid var(--core);outline-offset:4px}
+.btn svg{width:28px;height:28px}
+.btn[aria-disabled="true"]{background:var(--line);color:var(--smoke);box-shadow:none;cursor:not-allowed;transform:none;pointer-events:none}
+.meta{margin-top:18px;color:var(--smoke);font-size:17px}
+.meta b{color:var(--ash);font-weight:500}
+
+section{padding:56px 0}
+h2{font-size:clamp(30px,4vw,40px);margin:0 0 12px;font-weight:800;letter-spacing:-.5px;text-align:center}
+.sub{text-align:center;color:var(--smoke);margin:0 auto 40px;max-width:640px}
+.grid{display:grid;gap:20px;grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.card{background:var(--charcoal);border:1px solid var(--line);border-radius:18px;padding:28px}
+.card .ico{font-size:34px;line-height:1;margin-bottom:14px}
+.card h3{margin:0 0 8px;font-size:23px;color:var(--gold)}
+.card p{margin:0;color:var(--smoke);font-size:19px}
+
+.steps{counter-reset:s;display:grid;gap:18px;max-width:760px;margin:0 auto;padding:0;list-style:none}
+.steps li{counter-increment:s;display:flex;gap:20px;align-items:flex-start;background:var(--charcoal);border:1px solid var(--line);border-radius:18px;padding:22px 26px;font-size:21px}
+.steps li::before{content:counter(s);flex:none;width:46px;height:46px;border-radius:50%;background:var(--flame);color:var(--on-flame);font-weight:800;font-size:22px;display:grid;place-items:center}
+.steps small{display:block;color:var(--smoke);font-size:18px;margin-top:2px}
+
+.modes{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:8px}
+.chip{padding:10px 22px;border-radius:12px;background:var(--raised);border:1px solid var(--line);font-size:19px;font-weight:500}
+.chip.on{background:var(--flame);color:var(--on-flame);border-color:var(--flame)}
+
+details{background:var(--charcoal);border:1px solid var(--line);border-radius:14px;padding:6px 24px;max-width:760px;margin:0 auto 14px}
+summary{cursor:pointer;font-weight:700;font-size:21px;padding:14px 0;list-style:none}
+summary::-webkit-details-marker{display:none}
+summary::after{content:"+";float:right;color:var(--gold);font-size:26px;line-height:1}
+details[open] summary::after{content:"–"}
+details p{margin:0 0 16px;color:var(--smoke)}
+
+.cta{text-align:center;background:var(--charcoal);border:1px solid var(--line);border-radius:24px;padding:52px 24px;margin:20px 0 60px}
+footer{border-top:1px solid var(--line);padding:30px 0 44px;color:var(--smoke);font-size:17px;text-align:center}
+.hidden{display:none}
+@media(max-width:560px){body{font-size:19px}.btn{padding:18px 28px;font-size:21px;width:100%;justify-content:center}.steps li{padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="nav">
+    <div class="brand">
+      <svg viewBox="0 0 26 34" aria-hidden="true"><rect x="11" y="18" width="4" height="15" fill="#3A2E24"/><polygon points="8,19 18,19 16,15 10,15" fill="#9D8A76"/><polygon points="13,1 19,9 16,15 10,15 7,9" fill="#FF6B18"/><polygon points="13,5 17,10 13,14 9,10" fill="#FFB020"/><circle cx="13" cy="11" r="2" fill="#FFD98A"/></svg>
+      <span data-cfg="APP_NAME">TorchFind</span>
+    </div>
+    <a class="link" href="#cach-dung">Cách dùng</a>
+  </header>
+
+  <main>
+    <section class="hero" style="padding-top:40px">
+      <span class="tag">Dành cho máy tính Windows</span>
+      <h1>Tìm file theo <em>ý nghĩa</em>,<br>không chỉ theo tên</h1>
+      <p class="lead">Không nhớ tên file? Chỉ cần gõ điều bạn nhớ về nội dung. TorchFind sẽ tìm ra file đúng, mà không di chuyển hay đổi tên bất kỳ file nào của bạn.</p>
+
+      <a id="dl" class="btn" href="#" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+        <span id="dl-text">Tải TorchFind miễn phí</span>
+      </a>
+      <p class="meta" id="meta"></p>
+    </section>
+
+    <section>
+      <h2>Vì sao dùng TorchFind?</h2>
+      <p class="sub">Đơn giản để ai cũng dùng được ngay từ lần đầu.</p>
+      <div class="grid">
+        <div class="card"><div class="ico">🧠</div><h3>Hiểu ý bạn muốn</h3><p>Gõ “báo cáo lợi nhuận năm ngoái” vẫn ra đúng file, dù trong file không có đúng những từ đó.</p></div>
+        <div class="card"><div class="ico">🔒</div><h3>An toàn tuyệt đối</h3><p>Chỉ là góc nhìn ảo. Không file nào bị di chuyển, đổi tên hay xoá. Mọi thứ xử lý ngay trên máy bạn.</p></div>
+        <div class="card"><div class="ico">⚡</div><h3>Ghi nhớ một lần</h3><p>Thêm file mới thì chỉ xử lý phần mới. Quay lại thư mục cũ là tìm được ngay, không phải chờ lại từ đầu.</p></div>
+      </div>
+    </section>
+
+    <section>
+      <h2>Ba cách tìm, tuỳ bạn chọn</h2>
+      <p class="sub">Nhớ tên thì tìm theo tên. Chỉ nhớ nội dung thì tìm theo ý nghĩa. Muốn chắc ăn thì kết hợp cả hai.</p>
+      <div class="modes"><span class="chip">Theo tên</span><span class="chip">Theo ý nghĩa</span><span class="chip on">Kết hợp</span></div>
+    </section>
+
+    <section id="cach-dung">
+      <h2>Bắt đầu chỉ với 3 bước</h2>
+      <p class="sub">Không cần cài đặt phức tạp.</p>
+      <ol class="steps">
+        <li><div>Tải về và giải nén<small>Bấm nút tải ở trên, rồi giải nén file vừa tải.</small></div></li>
+        <li><div>Mở TorchFind và chọn thư mục<small>Chọn nơi bạn hay lưu tài liệu, TorchFind sẽ tự ghi nhớ nội dung.</small></div></li>
+        <li><div>Gõ điều bạn cần tìm<small>Kết quả hiện ngay, có phần trăm độ khớp và đoạn nội dung liên quan.</small></div></li>
+      </ol>
+    </section>
+
+    <section>
+      <h2>Câu hỏi thường gặp</h2>
+      <p class="sub"></p>
+      <details><summary>Windows báo “không nhận diện được ứng dụng”?</summary><p>Đây là cảnh báo thường gặp với phần mềm chưa mua chứng chỉ ký số. Bấm “Thông tin thêm”, rồi “Vẫn chạy”. Nếu bạn tải từ chính trang này thì có thể yên tâm.</p></details>
+      <details><summary>Dữ liệu của tôi có bị gửi đi đâu không?</summary><p>Không. TorchFind chạy hoàn toàn trên máy bạn. Dữ liệu ghi nhớ nằm trong thư mục TorchFindData ngay cạnh file chương trình; xoá thư mục này là xoá sạch mọi dấu vết.</p></details>
+      <details><summary>Lần đầu chạy có lâu không?</summary><p>Lần đầu cần đọc và ghi nhớ nội dung các file, có thể mất vài phút với thư mục lớn. Những lần sau chỉ xử lý file mới nên rất nhanh.</p></details>
+      <details><summary>Đọc được những loại file nào?</summary><p>Word, Excel, PowerPoint, PDF, văn bản thường và nhiều định dạng khác. Ảnh, video và file nén thì tìm được theo tên.</p></details>
+    </section>
+
+    <div class="cta">
+      <h2>Sẵn sàng tìm file nhanh hơn?</h2>
+      <p class="sub" style="margin-bottom:28px">Miễn phí, không cần đăng ký.</p>
+      <a id="dl2" class="btn" href="#" download>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v12m0 0l-5-5m5 5l5-5M5 21h14"/></svg>
+        <span class="dl-text">Tải TorchFind miễn phí</span>
+      </a>
+    </div>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> <span data-cfg="APP_NAME">TorchFind</span></div>
+    <div id="contact" class="hidden" style="margin-top:6px">Liên hệ: <a id="contact-link" href="#"></a></div>
+  </footer>
+</div>
+
+<script src="config.js"></script>
+<script>
+/* Đọc config.js và đổ vào trang. Không cần sửa gì ở đây. */
+(function () {
+  var cfg = window.TORCHFIND_CONFIG || {};
+  var $ = function (s) { return document.querySelector(s); };
+  var all = function (s) { return document.querySelectorAll(s); };
+
+  if (cfg.TAGLINE) { $('meta[name="description"]').content = cfg.TAGLINE; }
+  all('[data-cfg="APP_NAME"]').forEach(function (el) { if (cfg.APP_NAME) el.textContent = cfg.APP_NAME; });
+  $('#year').textContent = new Date().getFullYear();
+
+  var buttons = [$('#dl'), $('#dl2')];
+  var url = (cfg.DOWNLOAD_URL || '').trim();
+
+  buttons.forEach(function (btn) {
+    if (url) {
+      btn.href = url;
+      if (cfg.DOWNLOAD_FILENAME) btn.setAttribute('download', cfg.DOWNLOAD_FILENAME);
+    } else {
+      btn.removeAttribute('href');
+      btn.removeAttribute('download');
+      btn.setAttribute('aria-disabled', 'true');
+      btn.querySelector('span').textContent = 'Sắp ra mắt';
+    }
+  });
+
+  var bits = [];
+  if (cfg.VERSION) bits.push('Phiên bản <b>' + cfg.VERSION + '</b>');
+  if (cfg.PLATFORM_TEXT) bits.push('<b>' + cfg.PLATFORM_TEXT + '</b>');
+  if (cfg.FILE_SIZE_TEXT) bits.push('Dung lượng <b>' + cfg.FILE_SIZE_TEXT + '</b>');
+  $('#meta').innerHTML = url ? bits.join(' &nbsp;·&nbsp; ') : 'Bản tải về sẽ có sớm.';
+
+  if (cfg.CONTACT_EMAIL) {
+    $('#contact').classList.remove('hidden');
+    var a = $('#contact-link');
+    a.textContent = cfg.CONTACT_EMAIL;
+    a.href = 'mailto:' + cfg.CONTACT_EMAIL;
+  }
+})();
+</script>
+</body>
+</html>
